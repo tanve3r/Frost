@@ -19,31 +19,27 @@
 /* INCLUDES                                                                   */
 /******************************************************************************/
 
-#include "sdkconfig.h"
+#include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
-#include "driver/rmt.h"
-#include "led_strip.h"
+#include "driver/rmt_tx.h"
+#include "led_strip_encoder.h"
 #include "rgb_led_strip.h"
 #include "pin_config.h"
 
-static const char *TAG = "Stomiyo";
+static const char *TAG = "Frost";
 
-#define RMT_TX_CHANNEL RMT_CHANNEL_0
+#define RMT_LED_STRIP_RESOLUTION_HZ 10000000 // 10MHz resolution, 1 tick = 0.1us (led strip needs a high resolution)
+#define RMT_LED_STRIP_GPIO_NUM      0
 
 #define CHASE_SPEED_MS (10)
 
-#define CONFIG_STRIP_LED_NUMBER 14
 
 /******************************************************************************/
 /* PRIVATE DEFINITIONS                                                        */
 /******************************************************************************/
-uint32_t red = 0;
-uint32_t green = 0;
-uint32_t blue = 0;
-uint16_t hue = 0;
-uint16_t start_rgb = 0;
+static uint8_t led_strip_pixels[LED_MAX_NUM * 3];
 
 /******************************************************************************/
 /* PRIVATE TYPE DEFINITIONS                                                   */
@@ -92,8 +88,13 @@ void rgb_led_strip_Process (void);
 /******************************************************************************/
 /* PRIVATE DATA DEFINTIONS                                                    */
 /******************************************************************************/
-led_strip_t *strip = NULL;
-
+//led_strip_t *strip = NULL;
+ rmt_channel_handle_t led_chan = NULL;
+ rmt_encoder_handle_t led_encoder = NULL;
+ rmt_transmit_config_t tx_config = {
+	.loop_count = 0, // no transfer loop
+    };
+ 
 /******************************************************************************/
 /* PUBLIC FUNCTION DEFINITIONS                                                */
 /******************************************************************************/
@@ -103,22 +104,25 @@ led_strip_t *strip = NULL;
  */
 void rgb_ledStrip_Init (void)
 {
-  rmt_config_t config = RMT_DEFAULT_CONFIG_TX(RGB_LED_STRIP_TX_GPIO, RMT_TX_CHANNEL);
-  // set counter clock to 40MHz
-  config.clk_div = 2;
+  ESP_LOGI(TAG, "Create RMT TX channel");
 
-  ESP_ERROR_CHECK(rmt_config(&config));
-  ESP_ERROR_CHECK(rmt_driver_install(config.channel, 0, 0));
+  rmt_tx_channel_config_t tx_chan_config = {
+      .clk_src = RMT_CLK_SRC_DEFAULT, // select source clock
+      .gpio_num = RMT_LED_STRIP_GPIO_NUM,
+      .mem_block_symbols = 64, // increase the block size can make the LED less flickering
+      .resolution_hz = RMT_LED_STRIP_RESOLUTION_HZ,
+      .trans_queue_depth = 4, // set the number of transactions that can be pending in the background
+  };
+  ESP_ERROR_CHECK(rmt_new_tx_channel(&tx_chan_config, &led_chan));
+  
+  ESP_LOGI(TAG, "Install led strip encoder");
+  led_strip_encoder_config_t encoder_config = {
+      .resolution = RMT_LED_STRIP_RESOLUTION_HZ,
+  };
+  ESP_ERROR_CHECK(rmt_new_led_strip_encoder(&encoder_config, &led_encoder));
 
-  // install ws2812 driver
-  led_strip_config_t strip_config = LED_STRIP_DEFAULT_CONFIG(CONFIG_STRIP_LED_NUMBER, (led_strip_dev_t)config.channel);
-  strip = led_strip_new_rmt_ws2812(&strip_config);
-  if (!strip)
-  {
-      ESP_LOGE(TAG, "install WS2812 driver failed");
-  }
-  // Clear LED strip (turn off all LEDs)
-  ESP_ERROR_CHECK(strip->clear(strip, 100));
+  ESP_LOGI(TAG, "Enable RMT TX channel");
+  ESP_ERROR_CHECK(rmt_enable(led_chan));
 
 }
 
@@ -128,21 +132,20 @@ void rgb_ledStrip_Init (void)
  */
 void rgb_SetLedStrip (LED_STRIP_COLOR e_Color)
 {
-  if(e_Color == LED_COLOR_OFF)
+  // Flush RGB values to LEDs
+  ESP_ERROR_CHECK(rmt_transmit(led_chan, led_encoder, led_strip_pixels, sizeof(led_strip_pixels), &tx_config));
+  ESP_ERROR_CHECK(rmt_tx_wait_all_done(led_chan, portMAX_DELAY));
+            
+  // Write RGB values to strip driver
+  for (int led_Index = 0; led_Index < LED_MAX_NUM; led_Index ++)
   {
-    // Clear LED strip (turn off all LEDs)
-    ESP_ERROR_CHECK(strip->clear(strip, 100));
-  }
-  else
-  {
-    strip->clear(strip, 50);
-    // Write RGB values to strip driver
-    for (int led_Index = 0; led_Index < CONFIG_STRIP_LED_NUMBER; led_Index ++)
-    {
-      ESP_ERROR_CHECK(strip->set_pixel(strip, led_Index, st_ConfTab[e_Color].r, st_ConfTab[e_Color].g, st_ConfTab[e_Color].b));
-    }
-    // Flush RGB values to LEDs
-    ESP_ERROR_CHECK(strip->refresh(strip, 100));
+	led_strip_pixels[led_Index * 3 + 0] = st_ConfTab[e_Color].g;
+	led_strip_pixels[led_Index * 3 + 1] = st_ConfTab[e_Color].b;
+	led_strip_pixels[led_Index * 3 + 2] = st_ConfTab[e_Color].r;
+	  
+	ESP_ERROR_CHECK(rmt_transmit(led_chan, led_encoder, led_strip_pixels, sizeof(led_strip_pixels), &tx_config));
+    ESP_ERROR_CHECK(rmt_tx_wait_all_done(led_chan, portMAX_DELAY));
+
   }
 }
 
@@ -155,19 +158,30 @@ void rgb_SetLedStrip (LED_STRIP_COLOR e_Color)
  */
 void rgb_led_strip_Process (void)
 {
-  for (int i = 0; i < 3; i++) {
-      for (int j = i; j < CONFIG_STRIP_LED_NUMBER; j += 3) {
-          // Build RGB values
-          hue = j * 360 / CONFIG_STRIP_LED_NUMBER + start_rgb;
-          led_strip_hsv2rgb(hue, 100, 100, &red, &green, &blue);
-          // Write RGB values to strip driver
-          ESP_ERROR_CHECK(strip->set_pixel(strip, j, red, green, blue));
-      }
-      // Flush RGB values to LEDs
-      ESP_ERROR_CHECK(strip->refresh(strip, 100));
-      vTaskDelay(pdMS_TO_TICKS(CHASE_SPEED_MS));
-      strip->clear(strip, 50);
-      vTaskDelay(pdMS_TO_TICKS(CHASE_SPEED_MS));
+  uint32_t red = 0;
+  uint32_t green = 0;
+  uint32_t blue = 0;
+  uint16_t hue = 0;
+  uint16_t start_rgb = 0;
+  
+  for (int i = 0; i < 3; i++) 
+  {
+	for (int j = i; j < LED_MAX_NUM; j += 3) {
+		// Build RGB pixels
+		hue = j * 360 / LED_MAX_NUM + start_rgb;
+		led_strip_hsv2rgb(hue, 100, 100, &red, &green, &blue);
+		led_strip_pixels[j * 3 + 0] = green;
+		led_strip_pixels[j * 3 + 1] = blue;
+		led_strip_pixels[j * 3 + 2] = red;
+	}
+	// Flush RGB values to LEDs
+	ESP_ERROR_CHECK(rmt_transmit(led_chan, led_encoder, led_strip_pixels, sizeof(led_strip_pixels), &tx_config));
+	ESP_ERROR_CHECK(rmt_tx_wait_all_done(led_chan, portMAX_DELAY));
+	vTaskDelay(pdMS_TO_TICKS(CHASE_SPEED_MS));
+	memset(led_strip_pixels, 0, sizeof(led_strip_pixels));
+	ESP_ERROR_CHECK(rmt_transmit(led_chan, led_encoder, led_strip_pixels, sizeof(led_strip_pixels), &tx_config));
+	ESP_ERROR_CHECK(rmt_tx_wait_all_done(led_chan, portMAX_DELAY));
+	vTaskDelay(pdMS_TO_TICKS(CHASE_SPEED_MS));
   }
   start_rgb += 60;
 }

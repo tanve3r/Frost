@@ -58,6 +58,16 @@ typedef enum LED_STRIP_COLOR
   LED_MAX_COLORS
 }LED_STRIP_COLOR;
 
+/*
+ * @brief door latch state
+ */
+typedef enum LED_STRIP_NUM
+{
+  LED_1 = 0,
+  LED_2,
+  LED_3,
+  LED_MAX_NUM
+}LED_STRIP_NUM;
 /******************************************************************************/
 /* PUBLIC DATA DECLARATIONS                                                   */
 /******************************************************************************/
