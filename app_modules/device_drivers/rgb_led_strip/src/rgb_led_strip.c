@@ -31,7 +31,6 @@
 static const char *TAG = "Frost";
 
 #define RMT_LED_STRIP_RESOLUTION_HZ 10000000 // 10MHz resolution, 1 tick = 0.1us (led strip needs a high resolution)
-#define RMT_LED_STRIP_GPIO_NUM      0
 
 #define CHASE_SPEED_MS (10)
 
@@ -108,7 +107,7 @@ void rgb_ledStrip_Init (void)
 
   rmt_tx_channel_config_t tx_chan_config = {
       .clk_src = RMT_CLK_SRC_DEFAULT, // select source clock
-      .gpio_num = RMT_LED_STRIP_GPIO_NUM,
+      .gpio_num = RGB_LED_STRIP_TX_GPIO,
       .mem_block_symbols = 64, // increase the block size can make the LED less flickering
       .resolution_hz = RMT_LED_STRIP_RESOLUTION_HZ,
       .trans_queue_depth = 4, // set the number of transactions that can be pending in the background
@@ -132,6 +131,8 @@ void rgb_ledStrip_Init (void)
  */
 void rgb_SetLedStrip (LED_STRIP_COLOR e_Color)
 {
+  // clear strip
+  memset(led_strip_pixels, 0, sizeof(led_strip_pixels));
   // Flush RGB values to LEDs
   ESP_ERROR_CHECK(rmt_transmit(led_chan, led_encoder, led_strip_pixels, sizeof(led_strip_pixels), &tx_config));
   ESP_ERROR_CHECK(rmt_tx_wait_all_done(led_chan, portMAX_DELAY));
@@ -147,6 +148,42 @@ void rgb_SetLedStrip (LED_STRIP_COLOR e_Color)
     ESP_ERROR_CHECK(rmt_tx_wait_all_done(led_chan, portMAX_DELAY));
 
   }
+}
+
+/**
+ * @brief this api is used to set individual color for each led
+ *
+ */
+void rgb_setLed(LED_STRIP_COLOR Led1_Color, 
+                LED_STRIP_COLOR Led2_Color, 
+                LED_STRIP_COLOR Led3_Color)
+{
+  // clear strip
+  memset(led_strip_pixels, 0, sizeof(led_strip_pixels));
+  // Flush RGB values to LEDs
+  ESP_ERROR_CHECK(rmt_transmit(led_chan, led_encoder, led_strip_pixels, sizeof(led_strip_pixels), &tx_config));
+  ESP_ERROR_CHECK(rmt_tx_wait_all_done(led_chan, portMAX_DELAY));
+  
+  led_strip_pixels[LED_1 * 3 + 0] = st_ConfTab[Led1_Color].g;
+  led_strip_pixels[LED_1 * 3 + 1] = st_ConfTab[Led1_Color].b;
+  led_strip_pixels[LED_1 * 3 + 2] = st_ConfTab[Led1_Color].r;
+    
+  ESP_ERROR_CHECK(rmt_transmit(led_chan, led_encoder, led_strip_pixels, sizeof(led_strip_pixels), &tx_config));
+  ESP_ERROR_CHECK(rmt_tx_wait_all_done(led_chan, portMAX_DELAY));
+  
+  led_strip_pixels[LED_2 * 3 + 0] = st_ConfTab[Led2_Color].g;
+  led_strip_pixels[LED_2 * 3 + 1] = st_ConfTab[Led2_Color].b;
+  led_strip_pixels[LED_2 * 3 + 2] = st_ConfTab[Led2_Color].r;
+    
+  ESP_ERROR_CHECK(rmt_transmit(led_chan, led_encoder, led_strip_pixels, sizeof(led_strip_pixels), &tx_config));
+  ESP_ERROR_CHECK(rmt_tx_wait_all_done(led_chan, portMAX_DELAY));
+  
+  led_strip_pixels[LED_3 * 3 + 0] = st_ConfTab[Led3_Color].g;
+  led_strip_pixels[LED_3 * 3 + 1] = st_ConfTab[Led3_Color].b;
+  led_strip_pixels[LED_3 * 3 + 2] = st_ConfTab[Led3_Color].r;
+    
+  ESP_ERROR_CHECK(rmt_transmit(led_chan, led_encoder, led_strip_pixels, sizeof(led_strip_pixels), &tx_config));
+  ESP_ERROR_CHECK(rmt_tx_wait_all_done(led_chan, portMAX_DELAY));
 }
 
 /******************************************************************************/

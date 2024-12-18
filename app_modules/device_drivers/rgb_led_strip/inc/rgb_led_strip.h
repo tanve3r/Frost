@@ -78,6 +78,9 @@ typedef enum LED_STRIP_NUM
 /******************************************************************************/
 void rgb_ledStrip_Init (void);
 void rgb_SetLedStrip (LED_STRIP_COLOR e_Color);
+void rgb_setLed( LED_STRIP_COLOR Led1_Color, 
+                 LED_STRIP_COLOR Led2_Color, 
+                 LED_STRIP_COLOR Led3_Color);
 
 #ifdef __cplusplus
 }
