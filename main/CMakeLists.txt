@@ -6,6 +6,7 @@ set(component_srcs
     "../app_modules/application/syssm/src/syssm.c"
     "../app_modules/device_drivers/buzzer/src/buzzer.c"
     "../app_modules/device_drivers/ir_switch/src/ir_switch.c"
+    "../app_modules/device_drivers/ldr_sensor/src/ldr_sensor.c"
     "../app_modules/device_drivers/rgb_led_strip/src/rgb_led_strip.c"
 )
 
@@ -15,6 +16,7 @@ idf_component_register(
 	INCLUDE_DIRS "../app_modules/application/syssm/inc"
 	             "../app_modules/device_drivers/buzzer/inc"
 	             "../app_modules/device_drivers/ir_switch/inc"
+	             "../app_modules/device_drivers/ldr_sensor/inc"
 	             "../app_modules/device_drivers/rgb_led_strip/inc"
 	             "../app_modules/infrastructure/config/inc"
     PRIV_INCLUDE_DIRS   # optional, add here private include directories

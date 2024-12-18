@@ -1,4 +1,4 @@
-set(component_srcs "src/rgb_led_strip.c")
+set(component_srcs "src/ldr_sensor.c")
 
 idf_component_register(SRCS "${component_srcs}"
                        INCLUDE_DIRS "inc"

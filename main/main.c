@@ -19,7 +19,7 @@
 /******************************************************************************/
 #include "buzzer.h"
 #include "ir_switch.h"
-#include "driver/gpio.h"
+#include "ldr_sensor.h"
 #include "esp_chip_info.h"
 #include "esp_flash.h"
 #include "esp_system.h"
@@ -42,6 +42,7 @@ void SysSm_task(void *param);
 void app_main(void) {
   IR_Switch_Init();
   Buzzer_Init();
+  LDR_Sensor_Init();
   rgb_ledStrip_Init();
   SysSm_Init();
 

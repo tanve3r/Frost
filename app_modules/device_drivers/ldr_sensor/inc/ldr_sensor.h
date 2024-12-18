@@ -10,12 +10,12 @@
  *
  *******************************************************************************
  *  PROJECT              FROST
- *  File Name          : Pin configuration file
- *  Description        : Code for pin configuration
+ *  File Name          : ldr_sensor
+ *  Description        : Code for ldr sensor
  ******************************************************************************/
 
-#ifndef PIN_CONFIG_H
-#define PIN_CONFIG_H
+#ifndef LDR_SWITCH_H
+#define LDR_SWITCH_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,45 +26,30 @@ extern "C" {
 /******************************************************************************/
 #include <assert.h>
 #include "stdint.h"
-#include "driver/gpio.h"
-#include "hal/gpio_hal.h"
 
 /******************************************************************************/
 /* PUBLIC DEFINITIONS                                                         */
 /******************************************************************************/
 
-// Modbus slave address
-#define CONFIG_MB_SLAVE_ADDR 3
-
-#define BUZZER_GPIO               GPIO_NUM_5
-
-#define RGB_LED_STRIP_TX_GPIO     GPIO_NUM_1
-
-#define IR_SWITCH_GPIO            GPIO_NUM_8
-
-#define LDR_GPIO                  GPIO_NUM_0 / ADC1 channel 0 
-
-#define  GPIO_PIN_RESET 0
-#define  GPIO_PIN_SET   1
 
 /******************************************************************************/
 /* PUBLIC TYPE DEFINITIONS                                                    */
 /******************************************************************************/
 
-
 /******************************************************************************/
 /* PUBLIC DATA DECLARATIONS                                                   */
 /******************************************************************************/
 
-void PinConfig_Init(void);
+
 /******************************************************************************/
 /* PUBLIC FUNCTION DECLARATIONS                                               */
 /******************************************************************************/
-
+void LDR_Sensor_Init(void);
+int Get_LDR_Data(void);
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // PIN_CONFIG_H
+#endif // LDR_SWITCH_H
