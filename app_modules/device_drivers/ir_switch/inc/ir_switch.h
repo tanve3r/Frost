@@ -10,12 +10,12 @@
  *
  *******************************************************************************
  *  PROJECT              FROST
- *  File Name          : Pin configuration file
- *  Description        : Code for pin configuration
+ *  File Name          : ir_switch
+ *  Description        : Code for door_switch
  ******************************************************************************/
 
-#ifndef PIN_CONFIG_H
-#define PIN_CONFIG_H
+#ifndef IR_SWITCH_H
+#define IR_SWITCH_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,43 +26,38 @@ extern "C" {
 /******************************************************************************/
 #include <assert.h>
 #include "stdint.h"
-#include "driver/gpio.h"
-#include "hal/gpio_hal.h"
 
 /******************************************************************************/
 /* PUBLIC DEFINITIONS                                                         */
 /******************************************************************************/
 
-// Modbus slave address
-#define CONFIG_MB_SLAVE_ADDR 3
-
-#define BUZZER_GPIO               GPIO_NUM_5
-
-#define RGB_LED_STRIP_TX_GPIO     GPIO_NUM_0
-
-#define IR_SWITCH_GPIO            GPIO_NUM_8
-
-#define  GPIO_PIN_RESET 0
-#define  GPIO_PIN_SET   1
 
 /******************************************************************************/
 /* PUBLIC TYPE DEFINITIONS                                                    */
 /******************************************************************************/
-
+/*
+ * @brief IR latch state
+ */
+typedef enum IRSwitch_State
+{
+  DOOR_SWITCH_RESET = 0,
+  DOOR_SWITCH_SET
+}IRSwitch_State;
 
 /******************************************************************************/
 /* PUBLIC DATA DECLARATIONS                                                   */
 /******************************************************************************/
 
-void PinConfig_Init(void);
+
 /******************************************************************************/
 /* PUBLIC FUNCTION DECLARATIONS                                               */
 /******************************************************************************/
-
+void IR_Switch_Init(void);
+IRSwitch_State GetIRswitchStatus(void);
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // PIN_CONFIG_H
+#endif // IR_SWITCH_H

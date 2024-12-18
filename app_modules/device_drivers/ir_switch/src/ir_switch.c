@@ -10,8 +10,8 @@
  *
  *******************************************************************************
  *  PROJECT              FROST
- *  File Name          : syssm
- *  Description        : Code for system state machine applications
+ *  File Name          : ir_switch
+ *  Description        : Code for door_switch
  ******************************************************************************/
 
 
@@ -21,27 +21,21 @@
 
 #include <stdio.h>
 #include "esp_log.h"
-#include "buzzer.h"
-#include "sdkconfig.h"
-#include "syssm.h"
-#include "rgb_led_strip.h"
+#include "driver/gpio.h"
+#include "ir_switch.h"
+#include "pin_config.h"
 
 /******************************************************************************/
 /* PRIVATE DEFINITIONS                                                        */
 /******************************************************************************/
 
-
-
 /******************************************************************************/
 /* PRIVATE TYPE DEFINITIONS                                                   */
 /******************************************************************************/
 
-const static char *TAG = "Frost";
-
 /******************************************************************************/
 /* PRIVATE FUNCTION DECLARATIONS AND PRIVATE MACRO FUNCTION DEFINITIONS       */
 /******************************************************************************/
-
 
 /******************************************************************************/
 /* EXTERN VARIABLE DEFINTIONS                                                 */
@@ -55,20 +49,28 @@ const static char *TAG = "Frost";
 /******************************************************************************/
 /* PUBLIC FUNCTION DEFINITIONS                                                */
 /******************************************************************************/
+
 /**
- * @brief system state machine initialization function
+ * @brief Door_Switch initialization function
  *
  */
-void SysSm_Init(void)
+void IR_Switch_Init(void)
 {
-  ESP_LOGI(TAG, "Hello from System \n");
+  gpio_reset_pin(IR_SWITCH_GPIO);
+  gpio_set_direction(IR_SWITCH_GPIO, GPIO_MODE_INPUT);
+  gpio_set_pull_mode(IR_SWITCH_GPIO,GPIO_PULLDOWN_ONLY);
 }
 
 /**
- * @brief system state machine process
+ * @brief IR switch status
  *
  */
-void SysSm_Process (void)
+IRSwitch_State GetIRswitchStatus(void)
 {
-
+  return((IRSwitch_State)gpio_get_level(IR_SWITCH_GPIO));
 }
+
+/******************************************************************************/
+/* PRIVATE FUNCTION DEFINITIONS                                               */
+/******************************************************************************/
+
