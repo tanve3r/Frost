@@ -17,6 +17,7 @@
 /******************************************************************************/
 /* INCLUDES                                                                   */
 /******************************************************************************/
+#include "ble.h"
 #include "buzzer.h"
 #include "ir_switch.h"
 #include "ldr_sensor.h"
@@ -40,6 +41,7 @@ void SysSm_task(void *param);
  * @brief main function
  */
 void app_main(void) {
+  BLE_Init();
   IR_Switch_Init();
   Buzzer_Init();
   LDR_Sensor_Init();
