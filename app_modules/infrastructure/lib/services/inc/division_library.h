@@ -1,25 +1,35 @@
 /*******************************************************************************
- *  Copyright (c) 2024 Bangalore,
+ *  Copyright (c) 2024 BSH Hausgeraete GmbH,
+ *  Carl-Wery-Str. 34, 81739 Munich, Germany, www.bsh-group.de
  *
  *  All rights reserved. This program and the accompanying materials
  *  are protected by international copyright laws.
  *  Please contact copyright holder for licensing information.
  *
- *
- *  @author Tanveer
- *
  *******************************************************************************
- *  PROJECT              FROST
- *  File Name          : ir_switch
- *  Description        : Code for door_switch
+ *  PROJECT          TWO_IN1_CPM
+ *  COMP_ABBREV      Division library
  ******************************************************************************/
 
-#ifndef IR_SWITCH_H
-#define IR_SWITCH_H
+#ifndef DIVISION_LIBRARY_H_
+#define DIVISION_LIBRARY_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+
+/******************************************************************************/
+/* DOCUMENTATION                                                              */
+/******************************************************************************/
+/** \file
+ *
+ *
+ *  \ingroup  division_library.h
+ *
+ *  \brief    
+ *
+ */
 
 /******************************************************************************/
 /* INCLUDES                                                                   */
@@ -35,14 +45,7 @@ extern "C" {
 /******************************************************************************/
 /* PUBLIC TYPE DEFINITIONS                                                    */
 /******************************************************************************/
-/*
- * @brief IR latch state
- */
-typedef enum IRSwitch_State
-{
-  DOOR_SWITCH_RESET = 0,
-  DOOR_SWITCH_SET
-}IRSwitch_State;
+
 
 /******************************************************************************/
 /* PUBLIC DATA DECLARATIONS                                                   */
@@ -52,12 +55,32 @@ typedef enum IRSwitch_State
 /******************************************************************************/
 /* PUBLIC FUNCTION DECLARATIONS                                               */
 /******************************************************************************/
-void IR_Switch_Init(void);
-uint8_t GetIRswitchStatus(void);
 
+int32_t Srvc_Div_S32S32_S32(int32_t s32_X, int32_t s32_Y);
+int32_t Srvc_Div_U32S32_S32(uint32_t u32_X, int32_t s32_Y);
+int32_t Srvc_Div_S32U32_S32(int32_t s32_X, uint32_t u32_Y);
+int32_t Srvc_Div_U32U32_S32(uint32_t u32_X, uint32_t u32_Y);
+
+uint32_t Srvc_Div_S32S32_U32(int32_t s32_X, int32_t s32_Y);
+uint32_t Srvc_Div_S32U32_U32(int32_t s32_X, uint32_t u32_Y);
+uint32_t Srvc_Div_U32S32_U32(uint32_t u32_X, int32_t s32_Y);
+uint32_t Srvc_Div_U32U32_U32(uint32_t u32_X, uint32_t u32_Y);
+
+int16_t Srvc_Div_S32S32_S16(int32_t s32_X, int32_t s32_Y);
+int16_t Srvc_Div_U32S32_S16(uint32_t u32_X, int32_t s32_Y);
+int16_t Srvc_Div_S32U32_S16(int32_t s32_X, uint32_t u32_Y);
+int16_t Srvc_Div_U32U32_S16(uint32_t u32_X, uint32_t u32_Y);
+
+uint16_t Srvc_Div_S32S32_U16(int32_t s32_X, int32_t s32_Y);
+uint16_t Srvc_Div_U32S32_U16(uint32_t u32_X, int32_t s32_Y);
+uint16_t Srvc_Div_S32U32_U16(int32_t s32_X, uint32_t u32_Y);
+uint16_t Srvc_Div_U32U32_U16(uint32_t u32_X, uint32_t u32_Y);
+
+int32_t Srvc_Div_S64S32_S32(int64_t s64_X, int32_t s32_Y);
+uint32_t Srvc_Div_U64U32_U32(uint64_t u64_X, uint32_t u32_Y);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // IR_SWITCH_H
+#endif  // DIVISION_LIBRARY_H_

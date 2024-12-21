@@ -9,6 +9,7 @@ set(component_srcs
     "../app_modules/device_drivers/ir_switch/src/ir_switch.c"
     "../app_modules/device_drivers/ldr_sensor/src/ldr_sensor.c"
     "../app_modules/device_drivers/rgb_led_strip/src/rgb_led_strip.c"
+    "../app_modules/infrastructure/lib/services/src/extended_services.c"
 )
 
 
@@ -21,6 +22,7 @@ idf_component_register(
 	             "../app_modules/device_drivers/ldr_sensor/inc"
 	             "../app_modules/device_drivers/rgb_led_strip/inc"
 	             "../app_modules/infrastructure/config/inc"
+	             "../app_modules/infrastructure/lib/services/inc"
     PRIV_INCLUDE_DIRS   # optional, add here private include directories
     REQUIRES            # optional, list the public requirements (component names)
     PRIV_REQUIRES       # optional, list the private requirements

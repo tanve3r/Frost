@@ -42,7 +42,7 @@ extern "C" {
 
 #define IR_SWITCH_GPIO            GPIO_NUM_8
 
-#define LDR_GPIO                  GPIO_NUM_0 / ADC1 channel 0 
+#define LDR_GPIO                  GPIO_NUM_0 // ADC1 channel 0 
 
 #define  GPIO_PIN_RESET 0
 #define  GPIO_PIN_SET   1

@@ -1,25 +1,35 @@
 /*******************************************************************************
- *  Copyright (c) 2024 Bangalore,
+ *  Copyright (c) 2024 BSH Hausgeraete GmbH,
+ *  Carl-Wery-Str. 34, 81739 Munich, Germany, www.bsh-group.de
  *
  *  All rights reserved. This program and the accompanying materials
  *  are protected by international copyright laws.
  *  Please contact copyright holder for licensing information.
  *
- *
- *  @author Tanveer
- *
  *******************************************************************************
- *  PROJECT              FROST
- *  File Name          : ir_switch
- *  Description        : Code for door_switch
+ *  PROJECT          TWO_IN1_CPM
+ *  COMP_ABBREV      ring_buffer library
  ******************************************************************************/
 
-#ifndef IR_SWITCH_H
-#define IR_SWITCH_H
+#ifndef RING_BUFFER_H_
+#define RING_BUFFER_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+
+/******************************************************************************/
+/* DOCUMENTATION                                                              */
+/******************************************************************************/
+/** \file
+ *
+ *
+ *  \ingroup  ring_buffer.h
+ *
+ *  \brief    
+ *
+ */
 
 /******************************************************************************/
 /* INCLUDES                                                                   */
@@ -31,33 +41,33 @@ extern "C" {
 /* PUBLIC DEFINITIONS                                                         */
 /******************************************************************************/
 
-
 /******************************************************************************/
 /* PUBLIC TYPE DEFINITIONS                                                    */
 /******************************************************************************/
-/*
- * @brief IR latch state
+
+/*!
+ * \brief cicular buffer management structure
  */
-typedef enum IRSwitch_State
+enum ringbufferIndex
 {
-  DOOR_SWITCH_RESET = 0,
-  DOOR_SWITCH_SET
-}IRSwitch_State;
+  RING_BUFFER_SHELL = 0,
+  RING_BUFFER_CONSOLE,
+  RING_BUFFER_TOUCH_COMMS,
 
-/******************************************************************************/
-/* PUBLIC DATA DECLARATIONS                                                   */
-/******************************************************************************/
-
+  RING_BUFFER_MAX_IDX 
+};
 
 /******************************************************************************/
 /* PUBLIC FUNCTION DECLARATIONS                                               */
 /******************************************************************************/
-void IR_Switch_Init(void);
-uint8_t GetIRswitchStatus(void);
-
+void RingBuffer_vInit(enum ringbufferIndex Indx, uint8_t* pv_buffer, uint16_t pv_bufferSize);
+void RingBuffer_Push(enum ringbufferIndex Indx, uint8_t pv_data);
+uint16_t RingBuffer_GetFilledCount(enum ringbufferIndex Indx);
+uint8_t* RingBuffer_ReadPtr(enum ringbufferIndex Indx);
+void RingBuffer_UpdateReadPtr(enum ringbufferIndex Indx);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // IR_SWITCH_H
+#endif  // RING_BUFFER_H_
