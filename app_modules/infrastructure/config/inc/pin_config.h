@@ -38,7 +38,7 @@ extern "C" {
 
 #define BUZZER_GPIO               GPIO_NUM_5
 
-#define RGB_LED_STRIP_TX_GPIO     GPIO_NUM_1
+#define RGB_LED_STRIP_TX_GPIO     GPIO_NUM_2
 
 #define IR_SWITCH_GPIO            GPIO_NUM_8
 

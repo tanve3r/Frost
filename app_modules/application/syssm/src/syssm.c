@@ -74,21 +74,26 @@ void SysSm_Init(void)
  */
 void SysSm_Process (void)
 { 
+	static LED_STRIP_COLOR color = LED_COLOR_OFF;
 	IRSwitch_State status = GetIRswitchStatus();
 //	ESP_LOGI(TAG, "IR:%d LDR:%d\n", status, Get_LDR_Data());
 	
 	if(status)
 	{
-
 		SetBuzzer(BUZZER_SET);
 		if(statussetflag == false)
 		{
-					ESP_LOGI(TAG, "1IR:%d LDR:%d\n", status, Get_LDR_Data());
-				rgb_setLed(LED_COLOR_RED,
-				  LED_COLOR_GREEN,
-				  LED_COLOR_BLUE);	
+			color ++;
+			if(color >= LED_MAX_COLORS)
+			{
+				color = LED_COLOR_OFF;
+			}
+			ESP_LOGI(TAG, "1IR:%d LDR:%d\n", status, Get_LDR_Data());
+			
+			rgb_setLed(LED_1, color);
+			rgb_setLed(LED_2, color);
+			rgb_setLed(LED_3, color);
 		}
-
          statussetflag =  true;
          statusresetflag = false;
 	}
@@ -98,13 +103,13 @@ void SysSm_Process (void)
 		
 		if(statusresetflag == false)
 		{
-					ESP_LOGI(TAG, "2IR:%d LDR:%d\n", status, Get_LDR_Data());
-				rgb_setLed(LED_COLOR_BLUE,
-				  LED_COLOR_RED,
-				  LED_COLOR_GREEN);	
+			ESP_LOGI(TAG, "2IR:%d LDR:%d\n", status, Get_LDR_Data());
+			rgb_setLed(LED_1, color);
+			rgb_setLed(LED_2, color);
+			rgb_setLed(LED_3, color);
 		}
-
          statusresetflag =  true;
-statussetflag = false;
+		 statussetflag = false;
 	}
+	
 }

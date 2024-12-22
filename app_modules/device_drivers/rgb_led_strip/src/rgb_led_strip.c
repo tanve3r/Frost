@@ -26,14 +26,14 @@
 #include "led_strip.h"
 #include "rgb_led_strip.h"
 #include "pin_config.h"
-
+#include "esp_check.h"
 
 
 /******************************************************************************/
 /* PRIVATE DEFINITIONS                                                        */
 /******************************************************************************/
 static led_strip_handle_t led_strip;
-
+const static char *TAG = "led";
 /******************************************************************************/
 /* PRIVATE TYPE DEFINITIONS                                                   */
 /******************************************************************************/
@@ -43,9 +43,9 @@ static led_strip_handle_t led_strip;
 typedef struct LedStrip_ConfigTable_Stuct
 {
   LED_STRIP_COLOR  e_Colortype;
-  uint32_t r;
-  uint32_t g;
-  uint32_t b;
+  uint8_t r;
+  uint8_t g;
+  uint8_t b;
 }LedStrip_ConfigTable_Stuct;
 
 
@@ -53,19 +53,19 @@ static LedStrip_ConfigTable_Stuct st_ConfTab[LED_MAX_COLORS] =
 {
  //   color type               red_comp  green_comp   blue_comp
    { LED_COLOR_OFF,               0,         0,            0    },
-   { LED_COLOR_RED ,            16,         0,            0    },
-   { LED_COLOR_GREEN,             0,       16,            0    },
-   { LED_COLOR_BLUE,              0,         0,          16    },
-   { LED_COLOR_YELLOW,          16,       16,            0    },
-   { LED_COLOR_CYAN,              0,       16,          16    },
-   { LED_COLOR_MAGENTA,         16,         0,          16    },
-   { LED_COLOR_ORANGE,          16,       8,            0    },
-   { LED_COLOR_YELLOW_GREEN,    8,       16,            0    },
-   { LED_COLOR_CYAN_GREEN,        0,       16,          8    },
-   { LED_COLOR_CYAN_BLUE,         0,       8,          16    },
-   { LED_COLOR_BLUE_MAGENTA,    8,         0,          16    },
-   { LED_COLOR_RED_MAGENTA,     16,       16,          8    },
-   { LED_COLOR_WHITE,           16,       16,          8    },
+   { LED_COLOR_RED ,            255,         0,            0    },
+   { LED_COLOR_GREEN,             0,       255,            0    },
+   { LED_COLOR_BLUE,              0,         0,          255    },
+   { LED_COLOR_YELLOW,          255,       255,            0    },
+   { LED_COLOR_CYAN,              0,       255,          255    },
+   { LED_COLOR_MAGENTA,         255,         0,          255    },
+   { LED_COLOR_ORANGE,          255,       125,            0    },
+   { LED_COLOR_YELLOW_GREEN,    125,       255,            0    },
+   { LED_COLOR_CYAN_GREEN,        0,       255,          125    },
+   { LED_COLOR_CYAN_BLUE,         0,       125,          255    },
+   { LED_COLOR_BLUE_MAGENTA,    125,         0,          255    },
+   { LED_COLOR_RED_MAGENTA,     255,       255,          125    },
+   { LED_COLOR_WHITE,           255,       255,          125    },
 };
 
 /******************************************************************************/
@@ -89,21 +89,36 @@ static LedStrip_ConfigTable_Stuct st_ConfTab[LED_MAX_COLORS] =
  */
 void rgb_ledStrip_Init (void)
 {
-    /* LED strip initialization with the GPIO and pixels number*/
+    // LED strip general initialization, according to your led board design
     led_strip_config_t strip_config = {
-        .strip_gpio_num = RGB_LED_STRIP_TX_GPIO,
-        .max_leds = LED_MAX_NUM, // at least one LED on board
+        .strip_gpio_num = RGB_LED_STRIP_TX_GPIO, // The GPIO that connected to the LED strip's data line
+        .max_leds = LED_MAX_NUM,      // The number of LEDs in the strip,
+        .led_model = LED_MODEL_WS2812,        // LED strip model
+        // set the color order of the strip: GRB
+        .color_component_format = {
+            .format = {
+                .r_pos = 1, // red is the second byte in the color data
+                .g_pos = 0, // green is the first byte in the color data
+                .b_pos = 2, // blue is the third byte in the color data
+                .num_components = 3, // total 3 color components
+            },
+        },
+        .flags = {
+            .invert_out = false, // don't invert the output signal
+        }
     };
 
-    led_strip_rmt_config_t rmt_config = {
-        .resolution_hz = 10 * 1000 * 1000, // 10MHz
-        .flags.with_dma = false,
+    // LED strip backend configuration: SPI
+    led_strip_spi_config_t spi_config = {
+        .clk_src = SPI_CLK_SRC_DEFAULT, // different clock source can lead to different power consumption
+        .spi_bus = SPI2_HOST,           // SPI bus ID
+        .flags = {
+            .with_dma = true, // Using DMA can improve performance and help drive more LEDs
+        }
     };
-    ESP_ERROR_CHECK(led_strip_new_rmt_device(&strip_config, &rmt_config, &led_strip));
 
-    /* Set all LED off to clear all pixels */
-    led_strip_clear(led_strip);
-
+    ESP_ERROR_CHECK(led_strip_new_spi_device(&strip_config, &spi_config, &led_strip));
+    ESP_LOGI(TAG, "Created LED strip object with SPI backend");
 }
 
 /**
@@ -128,28 +143,28 @@ void rgb_SetLedStrip (LED_STRIP_COLOR e_Color)
 	 /* Refresh the strip to send data */
      led_strip_refresh(led_strip);
      
-     vTaskDelay(100 / portTICK_PERIOD_MS);
 }
 
 /**
  * @brief this api is used to set individual color for each led
  *
  */
-void rgb_setLed(LED_STRIP_COLOR Led1_Color, 
-                LED_STRIP_COLOR Led2_Color, 
-                LED_STRIP_COLOR Led3_Color)
+void rgb_setLed( LED_STRIP_NUM LedNum,LED_STRIP_COLOR Led_Color)
 {
+	esp_err_t error = ESP_OK;
     // Write RGB values to strip driver
-	led_strip_set_pixel(led_strip, 0, 
-	                     st_ConfTab[Led1_Color].r, st_ConfTab[Led1_Color].g, st_ConfTab[Led1_Color].b);
-	led_strip_set_pixel(led_strip, 1, 
-	                    st_ConfTab[Led2_Color].r, st_ConfTab[Led2_Color].g, st_ConfTab[Led2_Color].b); 
-	led_strip_set_pixel(led_strip, 2,
-	                    st_ConfTab[Led3_Color].r, st_ConfTab[Led3_Color].g, st_ConfTab[Led3_Color].b);
+	error = led_strip_set_pixel(led_strip, LedNum, 
+	                     st_ConfTab[Led_Color].r, st_ConfTab[Led_Color].g, st_ConfTab[Led_Color].b);
+	                     
+	if(error != ESP_OK)
+	ESP_LOGI(TAG, "err:%d \n", error);                     
+
 	 /* Refresh the strip to send data */
-     led_strip_refresh(led_strip);
+   error =  led_strip_refresh(led_strip);
      
-     vTaskDelay(100 / portTICK_PERIOD_MS);
+     if(error != ESP_OK)
+	ESP_LOGI(TAG, "err:%d \n", error);        
+     
 }
 
 /******************************************************************************/
