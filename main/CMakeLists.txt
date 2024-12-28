@@ -27,3 +27,5 @@ idf_component_register(
     REQUIRES            # optional, list the public requirements (component names)
     PRIV_REQUIRES       # optional, list the private requirements
 )
+
+
