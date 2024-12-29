@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2024 Bangalore,
+ *  Copyright (c) 2025 Bangalore,
  *
  *  All rights reserved. This program and the accompanying materials
  *  are protected by international copyright laws.
@@ -18,6 +18,7 @@
 /* INCLUDES                                                                   */
 /******************************************************************************/
 #include "ble.h"
+#include "flash_nvs.h"
 #include "buzzer.h"
 #include "ir_switch.h"
 #include "ldr_sensor.h"
@@ -41,6 +42,7 @@ void SysSm_task(void *param);
  * @brief main function
  */
 void app_main(void) {
+  Flash_Init();
   BLE_Init();
   IR_Switch_Init();
   Buzzer_Init();

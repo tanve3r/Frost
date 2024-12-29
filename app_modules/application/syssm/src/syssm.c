@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2024 Bangalore,
+ *  Copyright (c) 2025 Bangalore,
  *
  *  All rights reserved. This program and the accompanying materials
  *  are protected by international copyright laws.
@@ -28,11 +28,22 @@
 #include "syssm.h"
 #include "rgb_led_strip.h"
 #include "ldr_sensor.h"
+#include "flash_nvs.h"
+
+//#define TESTMODE_ENABLE
 
 /******************************************************************************/
 /* PRIVATE DEFINITIONS                                                        */
 /******************************************************************************/
-
+typedef enum sysSM_States
+{
+	INIT = 0,
+	IDLE,
+	BOTTLE_PRESENT,
+	REMINDER_DRINK,
+	REMINDER_CLEAN,
+	STANDBY
+}sysSM_States;
 
 
 /******************************************************************************/
@@ -40,7 +51,9 @@
 /******************************************************************************/
 
 const static char *TAG = "sysSM";
-
+#ifndef TESTMODE_ENABLE
+static sysSM_States CurrentState = INIT;
+#endif
 /******************************************************************************/
 /* PRIVATE FUNCTION DECLARATIONS AND PRIVATE MACRO FUNCTION DEFINITIONS       */
 /******************************************************************************/
@@ -53,8 +66,7 @@ const static char *TAG = "sysSM";
 /******************************************************************************/
 /* PRIVATE DATA DEFINTIONS                                                    */
 /******************************************************************************/
-static bool statussetflag = false;
-static bool statusresetflag = false;
+static FlashData frostdata = {0,0};
 
 /******************************************************************************/
 /* PUBLIC FUNCTION DEFINITIONS                                                */
@@ -68,12 +80,15 @@ void SysSm_Init(void)
   ESP_LOGI(TAG, "Hello from System \n");
 }
 
+#ifdef TESTMODE_ENABLE
 /**
  * @brief system state machine process
  *
  */
 void SysSm_Process (void)
 { 
+  static bool statussetflag = false;
+  static bool statusresetflag = false;
 	static LED_STRIP_COLOR color = LED_COLOR_OFF;
 	IRSwitch_State status = GetIRswitchStatus();
 //	ESP_LOGI(TAG, "IR:%d LDR:%d\n", status, Get_LDR_Data());
@@ -113,3 +128,53 @@ void SysSm_Process (void)
 	}
 	
 }
+
+#else
+/**
+ * @brief system state machine process
+ *
+ */
+void SysSm_Process (void)
+{ 
+	switch(CurrentState)
+	{
+		case INIT:
+		{
+			FlashReadParameters(&frostdata);
+			frostdata.Drink_Timer_ms ++;
+			frostdata.PlaceTimer_ms++;
+			CurrentState = IDLE;
+		}
+		break;
+		case IDLE:
+		{
+			FlashWriteParameters(&frostdata);
+			CurrentState = BOTTLE_PRESENT;
+		}
+		break;
+		case BOTTLE_PRESENT:
+		{
+			
+		}
+		break;
+		case REMINDER_DRINK:
+		{
+			
+		}
+		break;
+		case REMINDER_CLEAN:
+		{
+			
+		}
+		break;
+		case STANDBY:
+		{
+			
+		}
+		break;
+		default:
+		break;
+		
+	}
+}
+#endif

@@ -10,12 +10,12 @@
  *
  *******************************************************************************
  *  PROJECT              FROST
- *  File Name          : ldr_sensor
- *  Description        : Code for ldr sensor
+ *  File Name          : flash_nvs
+ *  Description        : Code for flash
  ******************************************************************************/
 
-#ifndef LDR_SWITCH_H
-#define LDR_SWITCH_H
+#ifndef FLASH_NVS_H
+#define FLASH_NVS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,11 +31,14 @@ extern "C" {
 /* PUBLIC DEFINITIONS                                                         */
 /******************************************************************************/
 
-
 /******************************************************************************/
 /* PUBLIC TYPE DEFINITIONS                                                    */
 /******************************************************************************/
-
+typedef struct FlashData
+{
+	int32_t Drink_Timer_ms;
+	int32_t PlaceTimer_ms;
+}FlashData;
 /******************************************************************************/
 /* PUBLIC DATA DECLARATIONS                                                   */
 /******************************************************************************/
@@ -44,12 +47,13 @@ extern "C" {
 /******************************************************************************/
 /* PUBLIC FUNCTION DECLARATIONS                                               */
 /******************************************************************************/
-void LDR_Sensor_Init(void);
-int Get_LDR_Data(void);
+void Flash_Init(void);
+void FlashWriteParameters(FlashData* data);
+void FlashReadParameters(FlashData* data);
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // LDR_SWITCH_H
+#endif // FLASH_NVS_H

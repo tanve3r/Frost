@@ -10,12 +10,12 @@
  *
  *******************************************************************************
  *  PROJECT              FROST
- *  File Name          : ldr_sensor
- *  Description        : Code for ldr sensor
+ *  File Name          : restart
+ *  Description        : Code for restarting frost
  ******************************************************************************/
 
-#ifndef LDR_SWITCH_H
-#define LDR_SWITCH_H
+#ifndef RESTART_H
+#define RESTART_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,7 +31,6 @@ extern "C" {
 /* PUBLIC DEFINITIONS                                                         */
 /******************************************************************************/
 
-
 /******************************************************************************/
 /* PUBLIC TYPE DEFINITIONS                                                    */
 /******************************************************************************/
@@ -44,12 +43,11 @@ extern "C" {
 /******************************************************************************/
 /* PUBLIC FUNCTION DECLARATIONS                                               */
 /******************************************************************************/
-void LDR_Sensor_Init(void);
-int Get_LDR_Data(void);
+void Restart_Frost(void);
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // LDR_SWITCH_H
+#endif // RESTART_H

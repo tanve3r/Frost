@@ -10,8 +10,8 @@
  *
  *******************************************************************************
  *  PROJECT              FROST
- *  File Name          : buzzer
- *  Description        : Code for buzzer
+ *  File Name          : restart
+ *  Description        : Code for restarting frost
  ******************************************************************************/
 
 
@@ -20,11 +20,8 @@
 /******************************************************************************/
 
 #include <stdio.h>
-#include "esp_log.h"
-#include "driver/gpio.h"
-#include "buzzer.h"
-#include "pin_config.h"
-
+#include "esp_system.h"
+#include "restart.h"
 /******************************************************************************/
 /* PRIVATE DEFINITIONS                                                        */
 /******************************************************************************/
@@ -52,23 +49,15 @@
 /******************************************************************************/
 
 /**
- * @brief buzzer initialization function
+ * @brief restarting frost controller
  *
  */
-void Buzzer_Init(void)
+void Restart_Frost(void)
 {
-	gpio_reset_pin(BUZZER_GPIO);
-    /* Set the GPIO as a push/pull output */
-    gpio_set_direction(BUZZER_GPIO, GPIO_MODE_OUTPUT);
+    printf("Restarting now.\n");
+    fflush(stdout);
+    esp_restart();
     
-}
-
-/**
- * @brief buzzer state
- */
-void SetBuzzer(Buzzer_State e_buzzer_state)
-{
-  gpio_set_level(BUZZER_GPIO, e_buzzer_state);
 }
 
 /******************************************************************************/

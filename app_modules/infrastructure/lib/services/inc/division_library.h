@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2024 BSH Hausgeraete GmbH,
+ *  Copyright (c) 2025 BSH Hausgeraete GmbH,
  *  Carl-Wery-Str. 34, 81739 Munich, Germany, www.bsh-group.de
  *
  *  All rights reserved. This program and the accompanying materials
