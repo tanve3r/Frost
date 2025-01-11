@@ -33,6 +33,7 @@
 /******************************************************************************/
 #define DEFAULT_DRINKTIMER_VALUE 60000  // 60 seconds
 #define DEFAULT_PLACETIMER_VALUE 50000  // 50 seconds
+#define DEFAULT_CLEANTIMER_VALUE 50000  // 50 seconds
 
 //#define PrintEN
 
@@ -99,6 +100,7 @@ void FlashWriteParameters(FlashData* data)
     // Write
     err = nvs_set_i32(my_handle, "Drink_Timer_ms", data->Drink_Timer_ms);
     err = nvs_set_i32(my_handle, "PlaceTimer_ms", data->PlaceTimer_ms);
+    err = nvs_set_i32(my_handle, "CleanTimer_ms", data->CleanTimer_ms);
     
     printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
  
@@ -136,11 +138,25 @@ void FlashReadParameters(FlashData* data)
     switch (err) {
         case ESP_OK:
             printf("Done\n");
-            printf("Drink_Timer_ms = %" PRIu32 "\n", data->PlaceTimer_ms);
+            printf("PlaceTimer_ms = %" PRIu32 "\n", data->PlaceTimer_ms);
             break;
         case ESP_ERR_NVS_NOT_FOUND:
             printf("The value is not initialized yet!\n");
             data->PlaceTimer_ms = DEFAULT_PLACETIMER_VALUE;
+            break;
+        default :
+            printf("Error (%s) reading!\n", esp_err_to_name(err));
+    }
+    
+    err = nvs_get_i32(my_handle, "CleanTimer_ms", &data->CleanTimer_ms);
+    switch (err) {
+        case ESP_OK:
+            printf("Done\n");
+            printf("CleanTimer_ms = %" PRIu32 "\n", data->CleanTimer_ms);
+            break;
+        case ESP_ERR_NVS_NOT_FOUND:
+            printf("The value is not initialized yet!\n");
+            data->CleanTimer_ms = DEFAULT_CLEANTIMER_VALUE;
             break;
         default :
             printf("Error (%s) reading!\n", esp_err_to_name(err));

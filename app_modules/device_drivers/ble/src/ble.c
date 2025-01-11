@@ -33,6 +33,7 @@
 #include "services/gap/ble_svc_gap.h"
 #include "services/gatt/ble_svc_gatt.h"
 #include "sdkconfig.h"
+#include "syssm.h"
 
 
 /******************************************************************************/
@@ -58,9 +59,62 @@ void ble_app_advertise(void);
 /* PRIVATE DATA DEFINTIONS                                                    */
 /******************************************************************************/
 // Write data to ESP32 defined as server
+static int drinkWater_write(uint16_t conn_handle, uint16_t attr_handle, struct ble_gatt_access_ctxt *ctxt, void *arg)
+{
+	printf("Data from the client1: %.*s\n", ctxt->om->om_len, ctxt->om->om_data);
+     uint32_t value = (ctxt->om->om_data[3]) |
+             (ctxt->om->om_data[2] << 8) |
+             (ctxt->om->om_data[1] << 16) |
+             (ctxt->om->om_data[0] << 24);
+             
+     SysSm_Update_Flash(BLE_DRINK_TIMER,value);
+     
+     printf("drink timer %d %ld %d %d \n",ctxt->om->om_len, value, ctxt->om->om_data[0], ctxt->om->om_data[1]);
+     fflush(stdout); // Will now print everything in the stdout buffer
+     return 0;
+}
+
+static int placeBottle_write(uint16_t conn_handle, uint16_t attr_handle, struct ble_gatt_access_ctxt *ctxt, void *arg)
+{
+	printf("Data from the client2: %.*s\n", ctxt->om->om_len, ctxt->om->om_data);
+     uint32_t value = (ctxt->om->om_data[3]) |
+             (ctxt->om->om_data[2] << 8) |
+             (ctxt->om->om_data[1] << 16) |
+             (ctxt->om->om_data[0] << 24);
+             
+     SysSm_Update_Flash(BLE_PLACE_TIMER,value);
+     
+     printf("place bottle timer %d %ld %d %d \n",ctxt->om->om_len, value, ctxt->om->om_data[0], ctxt->om->om_data[1]);
+     fflush(stdout); // Will now print everything in the stdout buffer
+     return 0;
+}
+
+static int cleanBottle_write(uint16_t conn_handle, uint16_t attr_handle, struct ble_gatt_access_ctxt *ctxt, void *arg)
+{
+	printf("Data from the client3: %.*s\n", ctxt->om->om_len, ctxt->om->om_data);
+     uint32_t value = (ctxt->om->om_data[3]) |
+             (ctxt->om->om_data[2] << 8) |
+             (ctxt->om->om_data[1] << 16) |
+             (ctxt->om->om_data[0] << 24);
+             
+     SysSm_Update_Flash(BLE_CLEAN_TIMER,value);
+     
+     printf("clean bottle timer %d %ld %d %d \n",ctxt->om->om_len, value, ctxt->om->om_data[0], ctxt->om->om_data[1]);
+     fflush(stdout); // Will now print everything in the stdout buffer
+     return 0;
+}
+
+// Write data to ESP32 defined as server
 static int device_write(uint16_t conn_handle, uint16_t attr_handle, struct ble_gatt_access_ctxt *ctxt, void *arg)
 {
-    // printf("Data from the client: %.*s\n", ctxt->om->om_len, ctxt->om->om_data);
+     printf("Data from the client4: %.*s\n", ctxt->om->om_len, ctxt->om->om_data);
+     
+     uint32_t value = (ctxt->om->om_data[3]) |
+                 (ctxt->om->om_data[2] << 8) |
+                 (ctxt->om->om_data[1] << 16) |
+                 (ctxt->om->om_data[0] << 24);
+                 
+     printf("databuff %d %ld %d %d",ctxt->om->om_len, value, ctxt->om->om_data[0], ctxt->om->om_data[1]);
 
     char * data = (char *)ctxt->om->om_data;
     printf("%d\n",strcmp(data, (char *)"LIGHT ON")==0);
@@ -84,7 +138,7 @@ static int device_write(uint16_t conn_handle, uint16_t attr_handle, struct ble_g
         printf("Data from the client: %.*s\n", ctxt->om->om_len, ctxt->om->om_data);
     }
     
-    
+    fflush(stdout); // Will now print everything in the stdout buffer
     return 0;
 }
 
@@ -104,7 +158,16 @@ static const struct ble_gatt_svc_def gatt_svcs[] = {
          {.uuid = BLE_UUID16_DECLARE(0xFEF4),           // Define UUID for reading
           .flags = BLE_GATT_CHR_F_READ,
           .access_cb = device_read},
-         {.uuid = BLE_UUID16_DECLARE(0xDEAD),           // Define UUID for writing
+         {.uuid = BLE_UUID16_DECLARE(0xDEA1),           // UUID for Drink water Timer
+          .flags = BLE_GATT_CHR_F_WRITE,
+          .access_cb = drinkWater_write},
+         {.uuid = BLE_UUID16_DECLARE(0xDEA2),           // UUID for Place bottle Timer
+          .flags = BLE_GATT_CHR_F_WRITE,
+          .access_cb = placeBottle_write},
+         {.uuid = BLE_UUID16_DECLARE(0xDEA3),           // UUID for Clean bottle Timer
+          .flags = BLE_GATT_CHR_F_WRITE,
+          .access_cb = cleanBottle_write},
+         {.uuid = BLE_UUID16_DECLARE(0xDEAD),           // testing
           .flags = BLE_GATT_CHR_F_WRITE,
           .access_cb = device_write},
          {0}}},
@@ -185,7 +248,7 @@ void BLE_Init(void)
     nvs_flash_init();                          // 1 - Initialize NVS flash using
     // esp_nimble_hci_and_controller_init();      // 2 - Initialize ESP controller
     nimble_port_init();                        // 3 - Initialize the host stack
-    ble_svc_gap_device_name_set("BLE-Server"); // 4 - Initialize NimBLE configuration - server name
+    ble_svc_gap_device_name_set("FROST"); // 4 - Initialize NimBLE configuration - server name
     ble_svc_gap_init();                        // 4 - Initialize NimBLE configuration - gap service
     ble_svc_gatt_init();                       // 4 - Initialize NimBLE configuration - gatt service
     ble_gatts_count_cfg(gatt_svcs);            // 4 - Initialize NimBLE configuration - config gatt services

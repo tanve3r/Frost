@@ -28,7 +28,9 @@
 #include <stdbool.h>
 #include "extended_services.h"
 #include "multiplication_library.h"
-//#include "timerlib.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/timers.h"
+#include "esp_timer.h"
 #include "math.h"
 
 /******************************************************************************/
@@ -77,9 +79,7 @@ static uint8_t u8_Srvc_CRC_Byte_Tab[256] =
 
 uint32_t tx_time_get()
 {
-  //Shell_Printf("tx %d %d\n",(uint32_t)(TIM_u32GetCircleMicroSeconds() / 1000),(TIM_u32GetCircleMicroSeconds()));
-//  return (uint32_t)(TIM_u32GetCircleMicroSeconds() / 1000);
-return(0);
+  return (uint32_t)(esp_timer_get_time() / 1000);
 } 
 /**
 ***************************************************************************************************

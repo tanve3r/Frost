@@ -35,6 +35,12 @@ extern "C" {
 /******************************************************************************/
 /* PUBLIC TYPE DEFINITIONS                                                    */
 /******************************************************************************/
+typedef enum SYSSM_BLE_DATA
+{
+	BLE_DRINK_TIMER = 0,
+	BLE_PLACE_TIMER,
+	BLE_CLEAN_TIMER
+}SYSSM_BLE_DATA;
 
 /******************************************************************************/
 /* PUBLIC DATA DECLARATIONS                                                   */
@@ -46,7 +52,7 @@ extern "C" {
 /******************************************************************************/
 void SysSm_Init (void);
 void SysSm_Process (void);
-
+void SysSm_Update_Flash(SYSSM_BLE_DATA dataId, int32_t data);
 
 #ifdef __cplusplus
 }

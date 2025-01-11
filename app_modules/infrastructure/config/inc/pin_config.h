@@ -33,9 +33,6 @@ extern "C" {
 /* PUBLIC DEFINITIONS                                                         */
 /******************************************************************************/
 
-// Modbus slave address
-#define CONFIG_MB_SLAVE_ADDR 3
-
 #define BUZZER_GPIO               GPIO_NUM_5
 
 #define RGB_LED_STRIP_TX_GPIO     GPIO_NUM_2

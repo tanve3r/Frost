@@ -1,0 +1,7 @@
+#define BUZZER_GPIO               GPIO_NUM_5
+
+#define RGB_LED_STRIP_TX_GPIO     GPIO_NUM_2
+
+#define IR_SWITCH_GPIO            GPIO_NUM_8
+
+#define LDR_GPIO                  GPIO_NUM_0 // ADC1 channel 0 

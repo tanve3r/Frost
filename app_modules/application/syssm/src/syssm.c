@@ -53,6 +53,10 @@ typedef enum sysSM_States
 const static char *TAG = "sysSM";
 #ifndef TESTMODE_ENABLE
 static sysSM_States CurrentState = INIT;
+
+static bool DrinkFlag = false;
+static bool PlaceFlag = false;
+static bool CleanFlag = false;
 #endif
 /******************************************************************************/
 /* PRIVATE FUNCTION DECLARATIONS AND PRIVATE MACRO FUNCTION DEFINITIONS       */
@@ -66,7 +70,7 @@ static sysSM_States CurrentState = INIT;
 /******************************************************************************/
 /* PRIVATE DATA DEFINTIONS                                                    */
 /******************************************************************************/
-static FlashData frostdata = {0,0};
+static FlashData frostdata = {0,0,0};
 
 /******************************************************************************/
 /* PUBLIC FUNCTION DEFINITIONS                                                */
@@ -136,20 +140,24 @@ void SysSm_Process (void)
  */
 void SysSm_Process (void)
 { 
+    if( (DrinkFlag == true) &&
+        (PlaceFlag == true) &&
+        (CleanFlag == true)) 
+    {
+		FlashWriteParameters(&frostdata); // update Flash Parameters
+	}
+	
 	switch(CurrentState)
 	{
 		case INIT:
 		{
 			FlashReadParameters(&frostdata);
-			frostdata.Drink_Timer_ms ++;
-			frostdata.PlaceTimer_ms++;
 			CurrentState = IDLE;
 		}
 		break;
 		case IDLE:
 		{
-			FlashWriteParameters(&frostdata);
-			CurrentState = BOTTLE_PRESENT;
+			
 		}
 		break;
 		case BOTTLE_PRESENT:
@@ -175,6 +183,35 @@ void SysSm_Process (void)
 		default:
 		break;
 		
+	}
+}
+
+void SysSm_Update_Flash(SYSSM_BLE_DATA dataId, int32_t data)
+{
+	switch(dataId)
+	{
+		case BLE_DRINK_TIMER:
+		{
+			frostdata.Drink_Timer_ms = data;
+            DrinkFlag = true;
+		}
+		break;
+		case BLE_PLACE_TIMER:
+		{
+			frostdata.PlaceTimer_ms = data;		
+			PlaceFlag = true;
+	
+		}
+		break;
+		case BLE_CLEAN_TIMER:
+		{
+			frostdata.CleanTimer_ms = data;	
+			CleanFlag = true;		
+		}
+		break;
+		default:
+		break;						
+	
 	}
 }
 #endif

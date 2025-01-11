@@ -38,7 +38,9 @@ typedef struct FlashData
 {
 	int32_t Drink_Timer_ms;
 	int32_t PlaceTimer_ms;
+	int32_t CleanTimer_ms;
 }FlashData;
+
 /******************************************************************************/
 /* PUBLIC DATA DECLARATIONS                                                   */
 /******************************************************************************/
